@@ -1,4 +1,4 @@
-// Módulo de gerenciamento dos seletores (filtros em cascata)
+// Seletores em cascata — popula e filtra com base nos índices
 const Filters = (() => {
   const sel = {
     regiao:        document.getElementById('sel-regiao'),
@@ -8,85 +8,110 @@ const Filters = (() => {
     municipio:     document.getElementById('sel-municipio'),
   };
 
-  function populate(selectEl, items, valueKey, labelKey) {
+  function populate(selectEl, items, valueKey, labelKey, placeholder = '— Todos —') {
     const current = selectEl.value;
-    selectEl.innerHTML = '<option value="">— Todos —</option>';
+    selectEl.innerHTML = `<option value="">${placeholder}</option>`;
     items.forEach(item => {
       const opt = document.createElement('option');
       opt.value = item[valueKey];
       opt.textContent = item[labelKey];
       selectEl.appendChild(opt);
     });
-    if (items.find(i => i[valueKey] === current)) selectEl.value = current;
+    if (items.find(i => String(i[valueKey]) === String(current))) selectEl.value = current;
   }
 
-  function clearBelow(level) {
-    // level: 'regiao' | 'estado' | 'intermediaria' | 'imediata'
-    const order = ['regiao', 'estado', 'intermediaria', 'imediata', 'municipio'];
-    const idx = order.indexOf(level);
-    order.slice(idx + 1).forEach(k => {
-      sel[k].innerHTML = '<option value="">— Todos —</option>';
-      sel[k].value = '';
-    });
+  function resetSelect(selectEl, placeholder = '— Todos —') {
+    selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+    selectEl.value = '';
   }
 
-  function init(data, onChange) {
-    // Regiões — sempre fixo
-    populate(sel.regiao, data.regioes, 'cd_regiao', 'nm_regiao');
+  function init(idx, onChange) {
+    // Carga inicial de todos os seletores sem filtro
+    populate(sel.regiao,        idx.regioes,        'cd_regiao', 'nm_regiao');
+    populate(sel.estado,        idx.estados,        'cd_uf',     'nm_estado');
+    populate(sel.intermediaria, idx.intermediarias, 'cd_rgint',  'nm_rgint');
+    populate(sel.imediata,      idx.imediatas,      'cd_rgi',    'nm_rgi');
+    populate(sel.municipio,     idx.municipios,     'cd_mun',    'nm_mun');
 
     sel.regiao.addEventListener('change', () => {
       const cod = sel.regiao.value;
-      clearBelow('regiao');
-      if (cod) {
-        const estadosFiltrados = data.estados.filter(e => String(e.cd_regiao) === String(cod));
-        populate(sel.estado, estadosFiltrados, 'cd_uf', 'nm_estado');
-      } else {
-        populate(sel.estado, data.estados, 'cd_uf', 'nm_estado');
-      }
+      // Reseta cascata abaixo
+      resetSelect(sel.intermediaria); resetSelect(sel.imediata); resetSelect(sel.municipio);
+
+      const estadosFilt = cod
+        ? idx.estados.filter(e => String(e.cd_regiao) === String(cod))
+        : idx.estados;
+      populate(sel.estado, estadosFilt, 'cd_uf', 'nm_estado');
+
       onChange(getState());
     });
 
     sel.estado.addEventListener('change', () => {
       const cod = sel.estado.value;
-      clearBelow('estado');
+      resetSelect(sel.intermediaria); resetSelect(sel.imediata); resetSelect(sel.municipio);
+
       if (cod) {
-        const inter = data.intermediarias.filter(i => String(i.cd_uf) === String(cod));
-        populate(sel.intermediaria, inter, 'cd_regiao_intermediaria', 'nm_regiao_intermediaria');
-        const munic = data.municipios.filter(m => String(m.cd_uf) === String(cod));
-        populate(sel.municipio, munic, 'cd_municipio', 'nm_municipio');
+        populate(sel.intermediaria,
+          idx.intermediarias.filter(i => String(i.cd_uf) === String(cod)),
+          'cd_rgint', 'nm_rgint');
+        populate(sel.imediata,
+          idx.imediatas.filter(i => String(i.cd_uf) === String(cod)),
+          'cd_rgi', 'nm_rgi');
+        populate(sel.municipio,
+          idx.municipios.filter(m => String(m.cd_uf) === String(cod)),
+          'cd_mun', 'nm_mun');
+      } else {
+        populate(sel.intermediaria, idx.intermediarias, 'cd_rgint', 'nm_rgint');
+        populate(sel.imediata,      idx.imediatas,      'cd_rgi',   'nm_rgi');
+        populate(sel.municipio,     idx.municipios,     'cd_mun',   'nm_mun');
       }
+
       onChange(getState());
     });
 
     sel.intermediaria.addEventListener('change', () => {
       const cod = sel.intermediaria.value;
-      sel.imediata.innerHTML = '<option value="">— Todas —</option>';
-      sel.imediata.value = '';
+      resetSelect(sel.imediata); resetSelect(sel.municipio);
+
       if (cod) {
-        const imed = data.imediatas.filter(i => String(i.cd_regiao_intermediaria) === String(cod));
-        populate(sel.imediata, imed, 'cd_regiao_imediata', 'nm_regiao_imediata');
-        const munic = data.municipios.filter(m => String(m.cd_regiao_intermediaria) === String(cod));
-        populate(sel.municipio, munic, 'cd_municipio', 'nm_municipio');
+        populate(sel.imediata,
+          idx.imediatas.filter(i => String(i.cd_rgint) === String(cod)),
+          'cd_rgi', 'nm_rgi');
+        populate(sel.municipio,
+          idx.municipios.filter(m => String(m.cd_rgint) === String(cod)),
+          'cd_mun', 'nm_mun');
+      } else {
+        const codUF = sel.estado.value;
+        const baseI = codUF ? idx.imediatas.filter(i => String(i.cd_uf) === String(codUF)) : idx.imediatas;
+        const baseM = codUF ? idx.municipios.filter(m => String(m.cd_uf) === String(codUF)) : idx.municipios;
+        populate(sel.imediata,  baseI, 'cd_rgi', 'nm_rgi');
+        populate(sel.municipio, baseM, 'cd_mun', 'nm_mun');
       }
+
       onChange(getState());
     });
 
     sel.imediata.addEventListener('change', () => {
       const cod = sel.imediata.value;
+      resetSelect(sel.municipio);
+
       if (cod) {
-        const munic = data.municipios.filter(m => String(m.cd_regiao_imediata) === String(cod));
-        populate(sel.municipio, munic, 'cd_municipio', 'nm_municipio');
+        populate(sel.municipio,
+          idx.municipios.filter(m => String(m.cd_rgi) === String(cod)),
+          'cd_mun', 'nm_mun');
+      } else {
+        const codRgint = sel.intermediaria.value;
+        const codUF    = sel.estado.value;
+        let base = idx.municipios;
+        if (codRgint) base = base.filter(m => String(m.cd_rgint) === String(codRgint));
+        else if (codUF) base = base.filter(m => String(m.cd_uf) === String(codUF));
+        populate(sel.municipio, base, 'cd_mun', 'nm_mun');
       }
+
       onChange(getState());
     });
 
     sel.municipio.addEventListener('change', () => onChange(getState()));
-
-    // Estado sem região selecionada — popula todos os estados
-    populate(sel.estado, data.estados, 'cd_uf', 'nm_estado');
-    populate(sel.intermediaria, data.intermediarias, 'cd_regiao_intermediaria', 'nm_regiao_intermediaria');
-    populate(sel.imediata, data.imediatas, 'cd_regiao_imediata', 'nm_regiao_imediata');
-    populate(sel.municipio, data.municipios, 'cd_municipio', 'nm_municipio');
   }
 
   function getState() {
@@ -99,8 +124,13 @@ const Filters = (() => {
     };
   }
 
-  function reset() {
+  function reset(idx) {
     Object.values(sel).forEach(s => { s.value = ''; });
+    populate(sel.regiao,        idx.regioes,        'cd_regiao', 'nm_regiao');
+    populate(sel.estado,        idx.estados,        'cd_uf',     'nm_estado');
+    populate(sel.intermediaria, idx.intermediarias, 'cd_rgint',  'nm_rgint');
+    populate(sel.imediata,      idx.imediatas,      'cd_rgi',    'nm_rgi');
+    populate(sel.municipio,     idx.municipios,     'cd_mun',    'nm_mun');
   }
 
   return { init, getState, reset };
