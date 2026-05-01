@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Brasil</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <h1>Dashboard Brasil</h1>
+
+      <div class="filter-group">
+        <label>Região</label>
+        <select id="sel-regiao">
+          <option value="">— Todas —</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Estado (UF)</label>
+        <select id="sel-estado">
+          <option value="">— Todos —</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Região Intermediária</label>
+        <select id="sel-intermediaria">
+          <option value="">— Todas —</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Região Imediata</label>
+        <select id="sel-imediata">
+          <option value="">— Todas —</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Município</label>
+        <select id="sel-municipio">
+          <option value="">— Todos —</option>
+        </select>
+      </div>
+
+      <button id="btn-limpar">Limpar seleção</button>
+    </aside>
+
+    <main id="map-container">
+      <div id="map"></div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

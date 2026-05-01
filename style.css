@@ -1,0 +1,106 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f2f5;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+}
+
+/* ── Sidebar ── */
+#sidebar {
+  width: 260px;
+  min-width: 220px;
+  background: #1a2332;
+  color: #e0e6f0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  gap: 16px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+#sidebar h1 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  border-bottom: 1px solid #2e3f55;
+  padding-bottom: 12px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-group label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8fa3bf;
+}
+
+.filter-group select {
+  background: #243040;
+  border: 1px solid #2e3f55;
+  color: #e0e6f0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.filter-group select:focus {
+  border-color: #4e8ef7;
+}
+
+.filter-group select option {
+  background: #243040;
+}
+
+#btn-limpar {
+  margin-top: auto;
+  background: #2e3f55;
+  color: #8fa3bf;
+  border: 1px solid #3a5070;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+#btn-limpar:hover {
+  background: #3a5070;
+  color: #e0e6f0;
+}
+
+/* ── Map ── */
+#map-container {
+  flex: 1;
+  position: relative;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Leaflet popup customização */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
