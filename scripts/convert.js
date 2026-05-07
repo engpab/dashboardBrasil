@@ -10,14 +10,17 @@ const DATA = path.join(__dirname, '../data');
 const GEO  = path.join(DATA, 'geo');
 
 // Tolerâncias de simplificação por nível (graus decimais)
-// 0.05° ≈ 5km  |  0.01° ≈ 1km  |  0.003° ≈ 300m
+// Calibradas para ~15 MB (±2 MB) nos arquivos overview; ~30 MB total em municípios
+// Calibrado: brasil ~11 MB, regioes ~14 MB, estados ~16 MB, municipios ~31 MB total
 const TOLERANCE = {
-  overview: 0.05,   // brasil, regioes, estados
-  mid:      0.01,   // intermediárias, imediatas
-  detail:   0.003,  // municípios
+  pais:      0,          // sem simplificação → ~11 MB
+  regioes:   0.000001,   // → ~14 MB
+  estados:   0.00001,    // → ~16 MB (15±2 MB)
+  mid:       0.0001,     // intermediárias, imediatas
+  detail:    0.0007,     // municípios → ~31 MB total
 };
 
-const PRECISION = 4; // casas decimais finais após simplificação
+const PRECISION = 5; // casas decimais finais após simplificação
 
 function roundCoords(coords) {
   if (typeof coords[0] === 'number') {
@@ -71,7 +74,7 @@ async function convertPais() {
   console.log('\nibge_pais.csv → geo/brasil.geojson');
   const features = [];
   await streamCSV(path.join(DATA, 'ibge_pais.csv'), row =>
-    features.push(rowToFeature(row, { nm_pais: 'Pais', area_km2: 'AREA_KM2' }, TOLERANCE.overview))
+    features.push(rowToFeature(row, { nm_pais: 'Pais', area_km2: 'AREA_KM2' }, TOLERANCE.pais))
   );
   writeGeoJSON(path.join(GEO, 'brasil.geojson'), features);
 }
@@ -82,7 +85,7 @@ async function convertRegioes() {
   await streamCSV(path.join(DATA, 'ibge_regioes.csv'), row =>
     features.push(rowToFeature(row, {
       cd_regiao: 'CD_REGIAO', nm_regiao: 'NM_REGIAO', sigla_rg: 'SIGLA_RG'
-    }, TOLERANCE.overview))
+    }, TOLERANCE.regioes))
   );
   writeGeoJSON(path.join(GEO, 'regioes.geojson'), features);
 }
@@ -93,7 +96,7 @@ async function convertEstados() {
   await streamCSV(path.join(DATA, 'ibge_uf.csv'), row =>
     features.push(rowToFeature(row, {
       cd_uf: 'CD_UF', nm_estado: 'NM_UF', sigla_uf: 'SIGLA_UF', cd_regiao: 'CD_REGIAO'
-    }, TOLERANCE.overview))
+    }, TOLERANCE.estados))
   );
   writeGeoJSON(path.join(GEO, 'estados.geojson'), features);
 }
