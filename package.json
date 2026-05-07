@@ -1,0 +1,26 @@
+{
+  "name": "dashboardbrasil",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/engpab/dashboardBrasil.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/engpab/dashboardBrasil/issues"
+  },
+  "homepage": "https://github.com/engpab/dashboardBrasil#readme",
+  "dependencies": {
+    "@turf/simplify": "^7.3.5",
+    "csv-parse": "^6.2.1",
+    "wellknown": "^0.5.0"
+  }
+}
